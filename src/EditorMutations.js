@@ -4,6 +4,32 @@ function normalizePlainText(text) {
     return text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 }
 
+function toggleWrap(editor, before, after) {
+    var start = Math.min(editor.selectionStart, editor.selectionEnd);
+    var end = Math.max(editor.selectionStart, editor.selectionEnd);
+    var selected = editor.text.slice(start, end);
+
+    // Selection includes the markers: strip them.
+    if (selected.length >= before.length + after.length
+            && selected.startsWith(before) && selected.endsWith(after)) {
+        var inner = selected.slice(before.length, selected.length - after.length);
+        replaceRange(editor, start, end, inner, 0, inner.length);
+        return;
+    }
+
+    // Selection (or caret) sits directly inside the markers: strip them.
+    if (start >= before.length
+            && editor.text.slice(start - before.length, start) === before
+            && editor.text.slice(end, end + after.length) === after) {
+        replaceRange(editor, start - before.length, end + after.length, selected,
+                     0, selected.length);
+        return;
+    }
+
+    replaceRange(editor, start, end, before + selected + after,
+                 before.length, before.length + selected.length);
+}
+
 function replaceRange(editor, rangeStart, rangeEnd, replacement,
                       selectionStartOffset, selectionEndOffset) {
     var start = Math.max(0, Math.min(editor.text.length, rangeStart));
