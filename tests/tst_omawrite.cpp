@@ -139,6 +139,8 @@ private slots:
                 property int unwrappedSelectionStart
                 property int unwrappedSelectionEnd
                 property string emptyToggleText
+                property string italicInsideBold
+                property string italicAroundBold
 
                 Component.onCompleted: {
                     text = "strike this";
@@ -155,6 +157,16 @@ private slots:
                     EditorMutations.toggleWrap(this, "~~", "~~");
                     EditorMutations.toggleWrap(this, "~~", "~~");
                     emptyToggleText = text;
+
+                    text = "**bold**";
+                    select(2, 6);
+                    EditorMutations.toggleWrap(this, "*", "*");
+                    italicInsideBold = text;
+
+                    text = "**bold**";
+                    select(0, 8);
+                    EditorMutations.toggleWrap(this, "*", "*");
+                    italicAroundBold = text;
                 }
             }
         )QML";
@@ -172,6 +184,10 @@ private slots:
         QCOMPARE(editor->property("unwrappedSelectionStart").toInt(), 0);
         QCOMPARE(editor->property("unwrappedSelectionEnd").toInt(), 6);
         QCOMPARE(editor->property("emptyToggleText").toString(), QString());
+        QCOMPARE(editor->property("italicInsideBold").toString(),
+                 QStringLiteral("***bold***"));
+        QCOMPARE(editor->property("italicAroundBold").toString(),
+                 QStringLiteral("***bold***"));
     }
 
     void keepsCursorAndSelectionStableAcrossInsertions() {
